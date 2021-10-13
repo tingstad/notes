@@ -18,3 +18,22 @@ mvn clean install -Dmaven.test.skip=true
 
 https://maven.apache.org/surefire/maven-surefire-plugin/examples/skipping-tests.html
 
+## Dependency analysis
+
+Search for a dependency:
+
+```
+mvn dependency:tree -Dincludes="*:*name*"
+```
+
+See undeclared or unused dependencies:
+
+```
+mvn dependency:analyze
+```
+
+Write effective POM:
+
+```
+mvn help:effective-pom -Doutput=effective.xml
+```
