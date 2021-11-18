@@ -29,10 +29,32 @@ kubectl --context prod -n hello edit deployment/hello -o yaml
 EDITOR="./mod.jq.sh" kubectl --context prod -n hello edit deployment/hello -o json
 ```
 
-Flux
+More: https://kubernetes.io/docs/reference/kubectl/cheatsheet/
+
+
+## Kustomize
+
+```
+kustomize build kustomize/env/path/ | kubectl apply -f -
+```
+
+Inline [6902](https://datatracker.ietf.org/doc/html/rfc6902) operation when strategic merge doesn't cut it:
+```
+patchesJson6902:
+- target:
+    group: apps
+    version: v1
+    kind: Deployment
+    name: foo
+    namespace: foo
+  patch: |-
+    - op: replace
+      path: /spec/template/spec/containers/0/ports/0/containerPort
+      value: 8080
+```
+
+## Flux
 ```
 fluxctl release --context prod --timeout 2m0s --workload hello:deployment/hello --update-image=repo/img:tag
 ```
-
-More: https://kubernetes.io/docs/reference/kubectl/cheatsheet/
 
