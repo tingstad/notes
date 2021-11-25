@@ -11,7 +11,7 @@ kubectl --context prod -n hello get configmap -o json
 
 kubectl --context prod -n hello describe deployment
 kubectl --context prod -n hello describe pod [POD]
-kubectl --context prod -n hello logs POD [[-c ]CONTAINER]
+kubectl --context prod -n hello [--previoud] logs POD [[-c ]CONTAINER]
 
 kubectl --context prod -n hello rollout status deployment/hello
 kubectl --context prod -n hello rollout restart deployment/hello
