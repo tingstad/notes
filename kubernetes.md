@@ -27,6 +27,11 @@ kubectl --context prod -n hello edit configmaps
 kubectl --context prod -n hello edit deployment/hello -o yaml
 
 EDITOR="./mod.jq.sh" kubectl --context prod -n hello edit deployment/hello -o json
+
+kubectl debug ... #if EphemeralContainers is enabled in cluster, otherwise:
+
+kubectl --context prod -n hello run mypod -it --rm --image postgres --env PGPASSWORD="$pw" \
+    --command -- psql -h host -U user -d dbname  #mypod can be any name
 ```
 
 More: https://kubernetes.io/docs/reference/kubectl/cheatsheet/
