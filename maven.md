@@ -32,6 +32,11 @@ See undeclared or unused dependencies:
 mvn dependency:analyze
 ```
 
+specific version:
+```
+mvn org.apache.maven.plugins:maven-dependency-plugin:3.2.0:analyze
+```
+
 Write effective POM:
 
 ```
