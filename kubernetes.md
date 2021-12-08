@@ -20,7 +20,7 @@ kubectl --context prod -n hello rollout undo deployment/hello
 kubectl --context prod -n hello scale --replicas=3 deployment/hello
 
 kubectl --context prod -n hello delete pod POD
-kubectl --context prod -n hello delete deployment deployment/hello
+kubectl --context prod -n hello delete deployment hello
 
 kubectl --context prod -n hello exec --stdin --tty POD -- sh
 
