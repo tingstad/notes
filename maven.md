@@ -42,3 +42,13 @@ Write effective POM:
 ```
 mvn help:effective-pom -Doutput=effective.xml
 ```
+
+## Upload artifact
+
+```
+mvn deploy:deploy-file \
+    -Durl=http://nexus/repository/releases/ \
+    -DrepositoryId=releases \
+    -DpomFile=artifact-1.0.pom \
+    -Dfile=artifact-1.0.pom #or .jar
+```
