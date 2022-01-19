@@ -46,7 +46,8 @@ mvn help:effective-pom -Doutput=effective.xml
 Evaluate expression:
 
 ```
-mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -N -q -DforceStdout -f pom.xml -Dexpression=project.artifactId
+mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate \
+    -N -q -DforceStdout -f pom.xml -Dexpression=project.artifactId
 ```
 
 ## Upload artifact
