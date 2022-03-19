@@ -1,6 +1,6 @@
 # Maven
 
-Common commands.
+Some useful commands.
 
 For documentation of a command (e.g. `install`, `dependency:tree`) run:
 
@@ -60,6 +60,14 @@ Evaluate expression:
 ```
 mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate \
     -N -q -DforceStdout -f pom.xml -Dexpression=project.artifactId
+```
+
+Multi-module graph:
+
+```
+echo "" > raw.dot
+mvn dependency:tree -DoutputType=dot -DoutputFile=$PWD/raw.dot -DappendOutput
+grep ' ->' raw.dot | sort | uniq | ( echo "digraph mygraph {"; cat; echo "}" ) > graph.dot
 ```
 
 ## Upload artifact
