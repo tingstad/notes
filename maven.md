@@ -2,15 +2,27 @@
 
 Common commands.
 
+For documentation of a command (e.g. `install`, `dependency:tree`) run:
+
+```
+mvn help:describe -Dcmd=
+```
+
+## Init
+
+```
+mvn -B archetype:generate -DgroupId=com.mycompany.app -DartifactId=my-app
+```
+
 ## Tests
 
-Do not run:
+Do not run tests:
 
 ```
 mvn clean install -DskipTests
 ```
 
-Do not compile:
+Do not even compile tests:
 
 ```
 mvn clean install -Dmaven.test.skip=true
@@ -32,7 +44,7 @@ See undeclared or unused dependencies:
 mvn dependency:analyze
 ```
 
-specific version:
+Using specific version of dependency plugin:
 ```
 mvn org.apache.maven.plugins:maven-dependency-plugin:3.2.0:analyze
 ```
@@ -58,4 +70,10 @@ mvn deploy:deploy-file \
     -DrepositoryId=releases \
     -DpomFile=artifact-1.0.pom \
     -Dfile=artifact-1.0.pom #or .jar
+```
+
+## Install pom file
+
+```
+mvn -s settings.xml jar:jar install:install
 ```
