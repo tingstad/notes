@@ -66,7 +66,7 @@ Multi-module graph:
 
 ```
 echo "" > raw.dot
-mvn dependency:tree -DoutputType=dot -DoutputFile=$PWD/raw.dot -DappendOutput
+mvn dependency:tree -DoutputType=dot -DoutputFile="$PWD"/raw.dot -DappendOutput
 grep ' ->' raw.dot | sort | uniq | ( echo "digraph mygraph {"; cat; echo "}" ) > graph.dot
 ```
 
@@ -80,8 +80,15 @@ mvn deploy:deploy-file \
     -Dfile=artifact-1.0.pom #or .jar
 ```
 
+## Install artifact to local repository
+
+```
+mvn org.apache.maven.plugins:maven-dependency-plugin:3.2.0:get -Dartifact=group:name:1.0
+```
+
 ## Install pom file
 
+(Without compiling)
 ```
 mvn -s settings.xml jar:jar install:install
 ```
