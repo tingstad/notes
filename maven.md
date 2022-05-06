@@ -35,6 +35,11 @@ mvn clean install -Dmaven.test.skip=true
 mvn release:clean && mvn release:prepare && mvn release:perform
 ```
 
+## Set version
+```shell
+mvn versions:set -DgenerateBackupPoms=false -DnewVersion="$newVersion"
+```
+
 ## Dependency analysis
 
 Search for a dependency:
