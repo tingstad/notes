@@ -32,7 +32,7 @@ mvn clean install -Dmaven.test.skip=true
 ## Release
 
 ```shell
-mvn release:prepare && mvn release:perform
+mvn release:clean && mvn release:prepare && mvn release:perform
 ```
 
 ## Dependency analysis
