@@ -41,21 +41,51 @@ The shell uses process groups for job control. Job == process group. These can b
 
 When Ctrl-C is entered in the terminal, SIGINT is sent to the foreground process group (all processes in the group).
 
-When a shell script (or other program) is started, a new process group is created, which any of its children will join.
+When a shell script (or other program) is started, a new process group is created, which any children of it will join.
 
-Running a pipeline command (`foo | bar`) is also a job, because it makes sense to stop/resume all its processes at the same time.
+Running a pipeline command (`foo | bar`) interactively is also a job, because it makes sense to stop/resume all its processes at the same time.
 
 ## Shell scripts
 
-Just as any other program, shell scripts may want to clean up and shut down gracefully on cancellation.
+Just as any other program, shell scripts may want to tidy up and shut down gracefully on cancellation.
 
 The way to do this is to `trap` (catch) signals and react to them.
 
 Some shells, including Bash, implements "cooperative exit", where the parent shell interrupts only if the child process did not "ignore" SIGINT.
 
-To make your program (or shell script) behave nicely, you must therefore not "ignore" SIGINT TODO
+To make your program (or shell script) behave nicely, you should therefore let the outside world know that you died from the SIGINT. To achieve this, you must re-raise the signal by sending it to yourself.
 
+```shell
+#!/bin/sh
+trap 'cleanup' INT
+
+cleanup() {
+    echo "Received SIGINT" >&2
+    # clean up temp resources
+    trap - INT  # unset trap
+    kill -s INT "$$"  # kill self
+}
+
+echo "I am pid $$"
+sleep 30
+```
+
+### Other considerations in shell scripts
+
+If you have started asynchronous processes (`foo &`), these will ignore SIGINT.
+
+If you enable job control (`set -m`), all background processes run in a separate process group.
+
+If you want to kill your children, you can't be 100% sure that the PID wasn't recycled the moment before `kill` executes.
 
 ### Footnotes
 
 ¹ A group always begins having a leader process with PID equal to process group id
+
+### References
+
+- https://www.linusakesson.net/programming/tty/
+- https://www.cons.org/cracauer/sigint.html
+- https://www.gnu.org/software/libc/manual/html_node/Termination-Signals.html
+- https://pubs.opengroup.org/onlinepubs/9699919799/utilities/V3_chap02.html#tag_18_11
+- https://mywiki.wooledge.org/SignalTrap
