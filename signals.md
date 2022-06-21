@@ -78,6 +78,8 @@ If you enable job control (`set -m`), all background processes run in a separate
 
 If you want to kill your children, you can't be 100% sure that the PID wasn't recycled the moment before `kill` executes.
 
+A trap is not executed until foreground command has completed (see [spec](https://pubs.opengroup.org/onlinepubs/009695399/utilities/xcu_chap02.html#tag_02_11)). This is especially relevant for SIGTSTP.
+
 ### Footnotes
 
 ¹ A group always begins having a leader process with PID equal to process group id
