@@ -10,7 +10,7 @@ The default "kill" signal is TERM (terminate). Another important signal is INT (
 
 ## Unix processes
 
-Every process, except the root process, has a parent (environment variables etc. are inherited). This gives ut a process tree.
+Every process, except the root process, has a parent (environment variables etc. are inherited). This gives us a process tree.
 When a program runs a new command, that new process will be a child of the original process.
 If a parent is killed, the child will get a new parent (an ancestor process).
 
@@ -32,7 +32,7 @@ ps -o uid -o pid -o ppid -o pgid -o stat -o comm -o args
 
 Get process group id of given PID:
 ```shell
-ps -o pgid= -p "$$"  # ($$ = current shell)
+ps -o pgid= -p "$$"  # ($$ = current shell PID)
 ```
 
 ## Shell
