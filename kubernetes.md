@@ -64,3 +64,43 @@ patchesJson6902:
 fluxctl release --context prod --timeout 2m0s --workload hello:deployment/hello --update-image=repo/img:tag
 ```
 
+
+```
+OpenShift Container Platform
+
++-------------------------------------------------------------+
+| Project (= k8s namespace+)                                  |
+|                                                             |
+|  +-------------------------------------------------+        |
+|  | DeploymentConfig (= k8s ReplicationController+) |+       |
+|  | - Docker images + ENV & ports                   ||       |
+|  +-------------------------------------------------+|       |
+|    +|-----------------------------------------------+       |
+|     | ("Deployments" (k8s) descend from DeploymentConfigs)  |
+|     | (OCP supports both Deployment+ReplicaSets & DC+RC)    |
+|     |                                                       |
+|     | <creates>    +-------------------------+              |
+|     |              | Routes (~= k8s Ingress) |+             |
+|     |              | - host & path & service ||             |
+|     |              +-------------------------+|             |
+|     |                +---|--------------------+             |
+|     |                    V                                  |
+|     |        +-------------------------------------+        |
+|     |        | Service (internal load balancer)    |+       |
+|     |        | - port (listen) & targetPort (pods) ||       |
+|     |        +-------------------------------------+|       |
+|     |          +---|--------------------------------+       |
+|     V              V                                        |
+|  +-------------------------------------------+              |
+|  | Pod (~= "machine instance", w/IP address) |+             |
+|  |                   Immutable               ||             |
+|  |  +------------+   "Application instance"  ||             |
+|  |  | Containers |+                          ||             |
+|  |  +------------+|                          ||             |
+|  |    +-----------+                          ||             |
+|  |                                           ||             |
+|  +-------------------------------------------+|             |
+|    +------------------------------------------+             |
+|                                                             |
++-------------------------------------------------------------+
+```
