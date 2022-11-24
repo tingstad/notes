@@ -56,7 +56,7 @@ mvn dependency:analyze
 
 Using specific version of dependency plugin:
 ```shell
-mvn org.apache.maven.plugins:maven-dependency-plugin:3.2.0:analyze
+mvn org.apache.maven.plugins:maven-dependency-plugin:3.3.0:analyze
 ```
 
 Write effective POM:
@@ -93,7 +93,7 @@ mvn deploy:deploy-file \
 ## Install artifact to local repository
 
 ```shell
-mvn org.apache.maven.plugins:maven-dependency-plugin:3.2.0:get -Dartifact=group:name:1.0
+mvn org.apache.maven.plugins:maven-dependency-plugin:3.3.0:get -Dartifact=group:name:1.0
 ```
 
 ## Install pom file
