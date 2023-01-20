@@ -1,0 +1,123 @@
+version: "3.9"
+
+# = Docker compose Nginx, SSL, curl & Java example =
+#
+# Docker compose is great for testing and as executable documentation.
+#
+# Possible takeaways:
+# - Test of a service can be isolated by mocking external deps (`mock.com`)
+# - Setup steps may be individual "services" (`create-keys`)
+# - `healthcheck` and `depends_on` are paramount and avoids flakiness
+# - The `entrypoint:["/bin/sh","-c"]`+`command: -|` combo is great for multiline
+# - Heredoc (`<<EOF`) is great for file content
+#
+# To see output of steps, use: `docker compose up --force-recreate`
+
+# so we can share files between services:
+volumes:
+  keyfiles:
+
+services:
+  create-keys:
+    image: amazoncorretto:17
+    volumes: [ "keyfiles:/keyfiles" ]
+    entrypoint: [ "/bin/bash", "-exc" ]
+    command:
+      - |
+        # we can use openssl, but keytool is quite handy
+        keytool -genkey -keyalg RSA -keysize 2048 -validity 9999 \
+          -keystore keys.jks -storepass password \
+          -alias example -keypass password \
+          -dname 'CN=example, OU=Test, O=Test, L=Oslo, ST=Oslo, C=NO' \
+          -ext 'SAN=dns:mock.com,dns:localhost,ip:127.0.0.1,ip:::1'
+
+        # keys.jks now contains private key and self-signed public certificate
+        # but let's extract PEM files, the certificate is easy:
+        keytool -exportcert \
+          -keystore keys.jks -storepass password \
+          -alias example -rfc -file certificate.pem
+
+        # for the private key we need to use openssl and pkcs12:
+        keytool -importkeystore \
+          -srckeystore keys.jks -srcstoretype jks -srcstorepass password \
+          -destkeystore keys.p12 -deststoretype pkcs12 -deststorepass foobar
+        yum -y install openssl
+        openssl pkcs12 -in keys.p12 -password pass:foobar -nodes -out keys.pem 
+
+        # we already have the certificate, so let's cut out the private key:
+        sed -n '/BEGIN PRIVATE KEY/,/END PRIVATE KEY/p' keys.pem > private.pem
+        cp certificate.pem private.pem /keyfiles
+
+  mock.com:
+    image: nginx
+    depends_on:
+      create-keys:
+        condition: service_completed_successfully
+    volumes: [ "keyfiles:/root/ssl/" ]
+    ports: [ "443:443" ]
+    entrypoint: [ "/bin/sh", "-ec" ]
+    command:
+      - |
+        cat <<EOF > /etc/nginx/conf.d/default.conf
+        server { 
+            listen                 443 ssl;
+            listen                 [::]:443 ssl;
+            server_name            localhost;
+            ssl_certificate        /root/ssl/certificate.pem;
+            ssl_certificate_key    /root/ssl/private.pem;
+            access_log             off;
+            default_type           text/plain;
+            location / {
+                return 200 'Hello';
+            }
+        }
+        EOF
+        nginx -g "daemon off;"
+    healthcheck:
+      test: curl --insecure --fail --user-agent probe https://localhost:443/
+      timeout: 1s
+      interval: 1s
+      retries: 10
+
+  app:
+    image: amazoncorretto:17
+    depends_on:
+      mock.com:
+        condition: service_healthy
+    volumes: [ "keyfiles:/keyfiles" ]
+    entrypoint: [ "/bin/sh", "-exc" ]
+    command:
+      - |
+        curl --silent --fail --insecure https://mock.com | grep -q Hello
+        ! curl --silent --fail https://mock.com
+        curl --silent --fail --cacert /keyfiles/certificate.pem https://mock.com
+        
+        # expectations met with curl, now Java:
+        keytool -importcert -cacerts -storepass changeit -noprompt \
+          -file /keyfiles/certificate.pem
+        
+        cat <<EOF > App.java
+        import java.io.IOException;
+        import java.net.URI;
+        import java.net.http.*;
+        import java.net.http.HttpResponse.BodyHandlers;
+        import java.time.Duration;
+        
+        public class App {
+          public static void main(String[] arg) {
+            HttpClient httpClient = HttpClient.newBuilder()
+                .connectTimeout(Duration.ofSeconds(3)).build();
+            HttpRequest req = HttpRequest.newBuilder()
+                .timeout(Duration.ofSeconds(3)).uri(URI.create(arg[0])).build();
+            HttpResponse<String> resp;
+            try {
+                resp = httpClient.send(req, BodyHandlers.ofString());
+            } catch (IOException | InterruptedException e) {
+                throw new RuntimeException(e); // fails if invalid certificate
+            }
+            System.out.printf("GOT %d %s\n", resp.statusCode(), resp.body());
+          }
+        }
+        EOF
+        
+        javac App.java && java App https://mock.com
