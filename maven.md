@@ -93,7 +93,7 @@ mvn deploy:deploy-file \
 ## Install artifact to local repository
 
 ```shell
-mvn org.apache.maven.plugins:maven-dependency-plugin:3.3.0:get -Dartifact=group:name:1.0
+mvn org.apache.maven.plugins:maven-dependency-plugin:3.8.0:get -Dartifact=group:name:1.0
 ```
 
 ## Install pom file
